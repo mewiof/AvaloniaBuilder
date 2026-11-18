@@ -42,7 +42,6 @@ public partial class DesignSurface
 		Resize,
 		ResizeRoot,
 		Tool,
-		Pan,
 	}
 
 	[Flags]
@@ -76,13 +75,55 @@ public partial class DesignSurface
 	private Size _startSize;
 	private double _startLeft;
 	private double _startTop;
+	private bool _panning;
 	private Point _panStartPoint;
-	private Vector _panStartOffset;
+	private Point _panStart;
 	private DropTarget? _dropTarget;
 	private bool _parentWanted;
 	private List<DesignNode>? _toolNodes;
 	private List<XamlNamespace>? _toolNamespaces;
 	private string? _toolLabel;
+
+	private void OnPanPressed(object? sender, PointerPressedEventArgs e)
+	{
+		if (_panning || _mode != DragMode.None || !e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed)
+			return;
+		_panning = true;
+		_panStartPoint = e.GetPosition(this);
+		_panStart = _pan;
+		e.Pointer.Capture(this);
+		Cursor = MoveCursor;
+		e.Handled = true;
+	}
+
+	private void OnPanMoved(object? sender, PointerEventArgs e)
+	{
+		if (!_panning)
+			return;
+		SetPan(_panStart + (e.GetPosition(this) - _panStartPoint));
+		e.Handled = true;
+	}
+
+	private void OnPanReleased(object? sender, PointerReleasedEventArgs e)
+	{
+		if (!_panning || e.InitialPressMouseButton != MouseButton.Middle)
+			return;
+		StopPan();
+		e.Pointer.Capture(null);
+		e.Handled = true;
+	}
+
+	protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+	{
+		base.OnPointerCaptureLost(e);
+		StopPan();
+	}
+
+	private void StopPan()
+	{
+		_panning = false;
+		Cursor = null;
+	}
 
 	private void OnOverlayPointerPressed(object? sender, PointerPressedEventArgs e)
 	{
@@ -91,16 +132,6 @@ public partial class DesignSurface
 		Overlay.Focus();
 		var point = e.GetPosition(Overlay);
 		var properties = e.GetCurrentPoint(Overlay).Properties;
-
-		if (properties.IsMiddleButtonPressed)
-		{
-			_mode = DragMode.Pan;
-			_panStartPoint = e.GetPosition(this);
-			_panStartOffset = Scroller.Offset;
-			e.Pointer.Capture(Overlay);
-			e.Handled = true;
-			return;
-		}
 
 		if (properties.IsRightButtonPressed)
 		{
@@ -178,11 +209,6 @@ public partial class DesignSurface
 			case DragMode.ResizeRoot:
 				UpdateRootResize(point);
 				Overlay.InvalidateVisual();
-				break;
-
-			case DragMode.Pan:
-				var delta = e.GetPosition(this) - _panStartPoint;
-				Scroller.Offset = new Vector(Math.Max(0, _panStartOffset.X - delta.X), Math.Max(0, _panStartOffset.Y - delta.Y));
 				break;
 		}
 	}
@@ -545,7 +571,7 @@ public partial class DesignSurface
 			return false;
 		_lastPoint = e.GetPosition(Overlay);
 		_parentWanted = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
-		bool overSurface = new Rect(Scroller.Bounds.Size).Contains(e.GetPosition(Scroller));
+		bool overSurface = new Rect(Bounds.Size).Contains(e.GetPosition(this));
 		_dropTarget = overSurface ? FindDropTarget(_lastPoint, null, _toolNodes[0]) : null;
 		Overlay.InvalidateVisual();
 		return _dropTarget is not null;

@@ -276,4 +276,103 @@ public class DesignSurfaceTests
 		Assert.Same(button.Parent, document.Selected);
 		window.Close();
 	}
+
+	private const string SmallWindow = $"<Window {Header} Width=\"400\" Height=\"300\"><Grid /></Window>";
+
+	private static void Wheel(Window window, Point point, double delta, RawInputModifiers modifiers = RawInputModifiers.None)
+	{
+		window.MouseWheel(point, new Vector(0, delta), modifiers);
+		TestHelpers.Settle();
+	}
+
+	private static void MiddleDrag(Window window, Point from, Vector by)
+	{
+		window.MouseMove(from);
+		window.MouseDown(from, MouseButton.Middle);
+		window.MouseMove(from + by / 2);
+		window.MouseMove(from + by);
+		window.MouseUp(from + by, MouseButton.Middle);
+		TestHelpers.Settle();
+	}
+
+	[AvaloniaFact]
+	public void The_wheel_with_ctrl_zooms_in_and_out_through_100_percent()
+	{
+		var (window, surface, document) = Open(SmallWindow);
+		var at = Middle(window, surface, document.Root);
+
+		for (int i = 0; i < 3; i++)
+			Wheel(window, at, 1, RawInputModifiers.Control);
+		Assert.True(surface.Zoom > 1.3);
+
+		for (int i = 0; i < 3; i++)
+			Wheel(window, at, -1, RawInputModifiers.Control);
+		Assert.Equal(1, surface.Zoom);
+
+		for (int i = 0; i < 3; i++)
+			Wheel(window, at, -1, RawInputModifiers.Control);
+		Assert.True(surface.Zoom < 0.76);
+
+		var now = Middle(window, surface, document.Root);
+		Assert.Equal(at.X, now.X, 1.0);
+		Assert.Equal(at.Y, now.Y, 1.0);
+
+		for (int i = 0; i < 4; i++)
+			Wheel(window, at, 1, RawInputModifiers.Control);
+		Assert.True(surface.Zoom > 1);
+		window.Close();
+	}
+
+	[AvaloniaFact]
+	public void The_middle_button_moves_the_view_at_any_zoom()
+	{
+		var (window, surface, document) = Open(SmallWindow);
+		string xaml = DesignXamlWriter.Write(document);
+
+		foreach (double zoom in new[] { 0.5, 1.0, 2.0 })
+		{
+			surface.Zoom = zoom;
+			TestHelpers.Settle();
+			var before = surface.BoundsOf(document.Root)!.Value;
+
+			MiddleDrag(window, new Point(600, 500), new Vector(120, 70));
+
+			var after = surface.BoundsOf(document.Root)!.Value;
+			Assert.Equal(before.X + 120, after.X, 0.5);
+			Assert.Equal(before.Y + 70, after.Y, 0.5);
+			Assert.Equal(before.Width, after.Width, 0.5);
+		}
+
+		Assert.Null(document.Selected);
+		Assert.Equal(xaml, DesignXamlWriter.Write(document));
+		window.SaveScreen("surface-panned");
+		window.Close();
+	}
+
+	[AvaloniaFact]
+	public void The_wheel_moves_the_view_and_the_design_stays_in_sight()
+	{
+		var (window, surface, document) = Open(SmallWindow);
+		surface.Zoom = 0.5;
+		TestHelpers.Settle();
+		var at = Middle(window, surface, document.Root);
+		var before = surface.BoundsOf(document.Root)!.Value;
+
+		Wheel(window, at, 1);
+		Wheel(window, at, 1, RawInputModifiers.Shift);
+		var after = surface.BoundsOf(document.Root)!.Value;
+		Assert.Equal(before.X + 50, after.X, 0.5);
+		Assert.Equal(before.Y + 50, after.Y, 0.5);
+
+		var view = new Rect(surface.Bounds.Size);
+		MiddleDrag(window, new Point(600, 500), new Vector(-5000, -5000));
+		Assert.True(surface.BoundsOf(document.Root)!.Value.Intersects(view));
+		MiddleDrag(window, new Point(600, 500), new Vector(9000, 9000));
+		Assert.True(surface.BoundsOf(document.Root)!.Value.Intersects(view));
+
+		surface.ZoomToFit();
+		TestHelpers.Settle();
+		Assert.Equal(new Point(40, 40), surface.Pan);
+		window.Close();
+	}
 }

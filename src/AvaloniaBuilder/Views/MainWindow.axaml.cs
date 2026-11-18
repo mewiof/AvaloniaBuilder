@@ -29,7 +29,8 @@ public partial class MainWindow : Window
 		"  Double-click                   edit the main property\n" +
 		"  Right-click                    menu (wrap in a Border, duplicate, ...)\n" +
 		"  Ctrl + wheel                   zoom\n" +
-		"  Middle button + drag           move the view\n\n" +
+		"  Middle button + drag           move the view\n" +
+		"  Wheel, Shift + wheel           move the view up and down, left and right\n\n" +
 		"KEYBOARD\n" +
 		"  Delete                         delete the element\n" +
 		"  Ctrl+Z, Ctrl+Y                 undo, redo\n" +

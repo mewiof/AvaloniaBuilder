@@ -3,60 +3,55 @@
 	xmlns:designer="using:AvaloniaBuilder.Designer"
 	x:Class="AvaloniaBuilder.Designer.DesignSurface">
 
-	<Grid Background="{DynamicResource WorkspaceBrush}">
-		<ScrollViewer x:Name="Scroller"
-			HorizontalScrollBarVisibility="Auto"
-			VerticalScrollBarVisibility="Auto">
-			<Grid x:Name="Workspace">
+	<Grid Background="{DynamicResource WorkspaceBrush}"
+		ClipToBounds="True">
+		<Canvas>
+			<LayoutTransformControl x:Name="ZoomHost"
+				Canvas.Left="40"
+				Canvas.Top="40">
+				<ThemeVariantScope x:Name="ThemeScope">
+					<Border x:Name="Frame"
+						BoxShadow="0 6 24 0 #50000000"
+						BorderBrush="#70808080"
+						BorderThickness="1"
+						CornerRadius="8"
+						ClipToBounds="True">
+						<DockPanel>
+							<Border x:Name="TitleBar"
+								DockPanel.Dock="Top"
+								Height="30"
+								Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}">
+								<Grid ColumnDefinitions="*,Auto">
+									<TextBlock x:Name="TitleText"
+										Margin="12,0"
+										VerticalAlignment="Center"
+										FontSize="12"
+										TextTrimming="CharacterEllipsis"
+										Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+									<TextBlock Grid.Column="1"
+										Text="—      ☐      ✕"
+										Margin="0,0,14,0"
+										VerticalAlignment="Center"
+										FontSize="11"
+										Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+								</Grid>
+							</Border>
 
-				<LayoutTransformControl x:Name="ZoomHost"
-					HorizontalAlignment="Left"
-					VerticalAlignment="Top"
-					Margin="40,40,60,60">
-					<ThemeVariantScope x:Name="ThemeScope">
-						<Border x:Name="Frame"
-							BoxShadow="0 6 24 0 #50000000"
-							BorderBrush="#70808080"
-							BorderThickness="1"
-							CornerRadius="8"
-							ClipToBounds="True">
-							<DockPanel>
-								<Border x:Name="TitleBar"
-									DockPanel.Dock="Top"
-									Height="30"
-									Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}">
-									<Grid ColumnDefinitions="*,Auto">
-										<TextBlock x:Name="TitleText"
-											Margin="12,0"
-											VerticalAlignment="Center"
-											FontSize="12"
-											TextTrimming="CharacterEllipsis"
-											Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-										<TextBlock Grid.Column="1"
-											Text="—      ☐      ✕"
-											Margin="0,0,14,0"
-											VerticalAlignment="Center"
-											FontSize="11"
-											Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-									</Grid>
-								</Border>
+							<Border x:Name="ClientArea"
+								Background="{DynamicResource SystemRegionBrush}"
+								TextElement.Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+								TextElement.FontSize="{DynamicResource ControlContentThemeFontSize}"
+								TextElement.FontFamily="{DynamicResource ContentControlThemeFontFamily}"
+								ClipToBounds="True">
+								<designer:SafeHost x:Name="PreviewHost" />
+							</Border>
+						</DockPanel>
+					</Border>
+				</ThemeVariantScope>
+			</LayoutTransformControl>
+		</Canvas>
 
-								<Border x:Name="ClientArea"
-									Background="{DynamicResource SystemRegionBrush}"
-									TextElement.Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
-									TextElement.FontSize="{DynamicResource ControlContentThemeFontSize}"
-									TextElement.FontFamily="{DynamicResource ContentControlThemeFontFamily}"
-									ClipToBounds="True">
-									<designer:SafeHost x:Name="PreviewHost" />
-								</Border>
-							</DockPanel>
-						</Border>
-					</ThemeVariantScope>
-				</LayoutTransformControl>
-
-				<designer:DesignOverlay x:Name="Overlay" Focusable="True" />
-			</Grid>
-		</ScrollViewer>
+		<designer:DesignOverlay x:Name="Overlay" Focusable="True" />
 
 		<TextBlock x:Name="EmptyMessage"
 			IsVisible="False"

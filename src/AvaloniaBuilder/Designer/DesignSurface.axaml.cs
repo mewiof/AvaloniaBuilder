@@ -6,7 +6,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaBuilder.Metadata;
 using AvaloniaBuilder.Model;
@@ -36,11 +35,19 @@ public partial class DesignSurface : UserControl
 	public const double DefaultWidth = 800;
 	public const double DefaultHeight = 450;
 
+	private const double ZoomStep = 1.1;
+	private const double ZoomSnap = 0.005;
+	private const double WheelStep = 50;
+	private const double KeepVisible = 48;
+
+	private static readonly Point HomePan = new(40, 40);
+
 	private readonly Dictionary<DesignNode, int> _activeTabs = new();
 	private HashSet<DesignNode> _forcedOpen = new();
 	private DesignDocument? _document;
 	private PreviewResult? _preview;
 	private string? _layoutError;
+	private Point _pan = HomePan;
 
 	public DesignSurface()
 	{
@@ -55,6 +62,11 @@ public partial class DesignSurface : UserControl
 		Overlay.KeyDown += OnOverlayKeyDown;
 		Overlay.DoubleTapped += OnOverlayDoubleTapped;
 		AddHandler(PointerWheelChangedEvent, OnWheel, RoutingStrategies.Tunnel);
+		AddHandler(PointerWheelChangedEvent, OnWheelPan, RoutingStrategies.Bubble);
+		AddHandler(PointerPressedEvent, OnPanPressed, RoutingStrategies.Tunnel);
+		AddHandler(PointerMovedEvent, OnPanMoved, RoutingStrategies.Tunnel);
+		AddHandler(PointerReleasedEvent, OnPanReleased, RoutingStrategies.Tunnel);
+		SizeChanged += (_, _) => SetPan(_pan);
 
 		PreviewHost.LayoutUpdated += (_, _) => Overlay.InvalidateVisual();
 		PreviewHost.LayoutFailed += OnLayoutFailed;
@@ -101,7 +113,7 @@ public partial class DesignSurface : UserControl
 		else if (change.Property == ZoomProperty)
 		{
 			ZoomHost.LayoutTransform = new ScaleTransform(Zoom, Zoom);
-			Overlay.InvalidateVisual();
+			SetPan(_pan);
 		}
 		else if (change.Property == IsRunModeProperty)
 		{
@@ -131,6 +143,7 @@ public partial class DesignSurface : UserControl
 			_document.SelectionChanged += OnSelectionChanged;
 		}
 		Rebuild();
+		SetPan(HomePan);
 	}
 
 	private void OnDocumentChanged(object? sender, DocumentChangedEventArgs e)
@@ -281,11 +294,40 @@ public partial class DesignSurface : UserControl
 	{
 		var size = GetDesignSize();
 		double titleBar = TitleBar.IsVisible ? TitleBar.Height : 0;
-		double availableWidth = Scroller.Bounds.Width - 100;
-		double availableHeight = Scroller.Bounds.Height - 100;
+		double availableWidth = Bounds.Width - 100;
+		double availableHeight = Bounds.Height - 100;
 		if (availableWidth <= 0 || availableHeight <= 0)
 			return;
 		Zoom = Math.Min(1, Math.Min(availableWidth / size.Width, availableHeight / (size.Height + titleBar)));
+		SetPan(HomePan);
+	}
+
+	internal Point Pan => _pan;
+
+	private Size FrameSize()
+	{
+		var size = GetDesignSize();
+		double titleBar = TitleBar.IsVisible ? TitleBar.Height : 0;
+		return new Size(size.Width * Zoom, (size.Height + titleBar) * Zoom);
+	}
+
+	private void SetPan(Point pan)
+	{
+		var frame = FrameSize();
+		_pan = new Point(
+			ClampPan(pan.X, frame.Width, Bounds.Width),
+			ClampPan(pan.Y, frame.Height, Bounds.Height));
+		Canvas.SetLeft(ZoomHost, _pan.X);
+		Canvas.SetTop(ZoomHost, _pan.Y);
+		Overlay.InvalidateVisual();
+	}
+
+	private static double ClampPan(double value, double frame, double view)
+	{
+		if (view <= 0)
+			return value;
+		double keep = Math.Min(KeepVisible, Math.Min(frame, view));
+		return Math.Clamp(value, keep - frame, view - keep);
 	}
 
 	private void OnWheel(object? sender, PointerWheelEventArgs e)
@@ -293,21 +335,32 @@ public partial class DesignSurface : UserControl
 		if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
 			return;
 		e.Handled = true;
-
-		double oldZoom = Zoom;
-		double newZoom = Math.Clamp(oldZoom * (e.Delta.Y > 0 ? 1.1 : 1 / 1.1), MinZoom, MaxZoom);
-		if ((oldZoom < 1 && newZoom > 1) || (oldZoom > 1 && newZoom < 1))
-			newZoom = 1;
-		if (Math.Abs(newZoom - oldZoom) < 0.0001)
+		if (e.Delta.Y == 0)
 			return;
 
-		var inWorkspace = e.GetPosition(Workspace);
-		var margin = new Point(ZoomHost.Margin.Left, ZoomHost.Margin.Top);
-		var inDesign = (inWorkspace - margin) / oldZoom;
+		double oldZoom = Zoom;
+		double newZoom = Math.Clamp(oldZoom * (e.Delta.Y > 0 ? ZoomStep : 1 / ZoomStep), MinZoom, MaxZoom);
+		bool passesFullSize = (oldZoom < 1 - ZoomSnap && newZoom > 1) || (oldZoom > 1 + ZoomSnap && newZoom < 1);
+		if (passesFullSize || Math.Abs(newZoom - 1) < ZoomSnap)
+			newZoom = 1;
+		if (newZoom == oldZoom)
+			return;
+
+		var cursor = e.GetPosition(this);
+		var inDesign = (cursor - _pan) / oldZoom;
 		Zoom = newZoom;
-		var moved = inDesign * newZoom + margin;
-		var offset = Scroller.Offset + (moved - inWorkspace);
-		Dispatcher.UIThread.Post(() => Scroller.Offset = new Vector(Math.Max(0, offset.X), Math.Max(0, offset.Y)), DispatcherPriority.Loaded);
+		SetPan(cursor - inDesign * Zoom);
+	}
+
+	private void OnWheelPan(object? sender, PointerWheelEventArgs e)
+	{
+		if (e.Handled || e.KeyModifiers.HasFlag(KeyModifiers.Control))
+			return;
+		var delta = e.Delta;
+		if (e.KeyModifiers.HasFlag(KeyModifiers.Shift) && delta.X == 0)
+			delta = new Vector(delta.Y, 0);
+		SetPan(_pan + delta * WheelStep);
+		e.Handled = true;
 	}
 
 	private Control? ControlOf(DesignNode node)

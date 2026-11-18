@@ -1,0 +1,184 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:vm="using:AvaloniaBuilder.ViewModels"
+	xmlns:editors="using:AvaloniaBuilder.Editors"
+	x:Class="AvaloniaBuilder.Views.PropertiesView"
+	x:DataType="vm:PropertyGridViewModel"
+	Background="{DynamicResource PanelBrush}">
+
+	<DockPanel>
+		<TextBlock DockPanel.Dock="Top" Classes="panelHeader" Text="PROPERTIES" />
+
+		<Panel>
+			<TextBlock Classes="dim"
+				Margin="12"
+				TextWrapping="Wrap"
+				Text="Click an element in the design or in the outline. Its properties appear here."
+				IsVisible="{Binding !HasTarget}" />
+
+			<DockPanel IsVisible="{Binding HasTarget}">
+
+				<StackPanel DockPanel.Dock="Top" Margin="10,0,8,8" Spacing="5">
+					<TextBlock Text="{Binding Header}" FontSize="15" FontWeight="SemiBold"
+						TextTrimming="CharacterEllipsis" />
+					<TextBlock Classes="dim" Text="{Binding SubHeader}" FontSize="11" />
+					<Grid ColumnDefinitions="42*,58*" Margin="0,2,44,0">
+						<TextBlock Text="Type"
+							FontSize="12"
+							VerticalAlignment="Center"
+							ToolTip.Tip="The element name. Type another name to change the type. Examples: DockPanel, local:ArmView." />
+						<editors:CommitTextBox Grid.Column="1"
+							Classes="prop"
+							Classes.invalid="{Binding ElementTypeError, Converter={x:Static ObjectConverters.IsNotNull}}"
+							CommittedText="{Binding ElementType}" />
+					</Grid>
+					<TextBlock Classes="error"
+						Text="{Binding ElementTypeError}"
+						IsVisible="{Binding ElementTypeError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+					<Grid ColumnDefinitions="42*,58*" IsVisible="{Binding CanHaveName}"
+						Margin="0,0,44,0">
+						<TextBlock Text="Name"
+							FontSize="12"
+							VerticalAlignment="Center"
+							ToolTip.Tip="x:Name. With a name, the code-behind gets a field for this element." />
+						<editors:CommitTextBox x:Name="NameBox"
+							Grid.Column="1"
+							Classes="prop"
+							CommittedText="{Binding ElementName}"
+							PlaceholderText="no name" />
+					</Grid>
+					<TextBlock Classes="error"
+						Text="{Binding ElementNameError}"
+						IsVisible="{Binding ElementNameError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+					<TextBox Classes="prop" Text="{Binding Filter}"
+						PlaceholderText="Search properties" Margin="0,2,0,0" />
+				</StackPanel>
+
+				<ScrollViewer x:Name="Scroller">
+					<StackPanel>
+						<ItemsControl x:Name="GroupList" ItemsSource="{Binding Groups}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="vm:PropertyGroupViewModel">
+									<StackPanel IsVisible="{Binding IsVisible}">
+										<ToggleButton Classes="group"
+											IsChecked="{Binding IsExpanded}"
+											Content="{Binding Name}" />
+										<ItemsControl ItemsSource="{Binding Items}"
+											IsVisible="{Binding IsExpanded}" Margin="10,4,4,6">
+											<ItemsControl.ItemTemplate>
+												<DataTemplate x:DataType="vm:PropertyItemViewModel">
+													<Grid ColumnDefinitions="42*,58*,22,22"
+														MinHeight="26"
+														IsVisible="{Binding IsVisible}">
+														<TextBlock Text="{Binding Name}"
+															FontSize="12"
+															FontWeight="{Binding NameWeight}"
+															VerticalAlignment="Center"
+															TextTrimming="CharacterEllipsis"
+															Margin="0,0,6,0"
+															Background="Transparent"
+															ToolTip.Tip="{Binding TypeHint}" />
+
+														<Panel Grid.Column="1"
+															VerticalAlignment="Center">
+															<Grid ColumnDefinitions="*,Auto"
+																IsVisible="{Binding ShowTextEditor}">
+																<editors:CommitTextBox
+																	Classes="prop"
+																	Classes.invalid="{Binding HasError}"
+																	CommittedText="{Binding Text}"
+																	LiveCommit="{Binding LiveCommit}"
+																	PlaceholderText="{Binding Placeholder}"
+																	ToolTip.Tip="{Binding Error}" />
+																<Button Grid.Column="1"
+																	Classes="swatch"
+																	Background="{Binding Swatch}"
+																	IsVisible="{Binding ShowSwatch}"
+																	ToolTip.Tip="Pick a color">
+																	<Button.Flyout>
+																		<Flyout
+																			Placement="LeftEdgeAlignedTop">
+																			<ColorView
+																				Color="{Binding PickerColor, Mode=TwoWay}" />
+																		</Flyout>
+																	</Button.Flyout>
+																</Button>
+															</Grid>
+
+															<CheckBox
+																IsVisible="{Binding ShowBoolEditor}"
+																IsChecked="{Binding IsChecked}"
+																MinHeight="24"
+																Padding="0" />
+
+															<ComboBox Classes="prop"
+																IsVisible="{Binding ShowEnumEditor}"
+																ItemsSource="{Binding Options}"
+																SelectedItem="{Binding SelectedOption}" />
+
+															<editors:CommitTextBox Classes="prop"
+																Classes.invalid="{Binding HasError}"
+																IsVisible="{Binding IsBinding}"
+																CommittedText="{Binding Text}"
+																PlaceholderText="{Binding Placeholder}"
+																ToolTip.Tip="{Binding Error}">
+																<editors:CommitTextBox.InnerLeftContent>
+																	<TextBlock Text="{}{Binding"
+																		Classes="dim"
+																		FontSize="11"
+																		Margin="6,0,0,0"
+																		VerticalAlignment="Center" />
+																</editors:CommitTextBox.InnerLeftContent>
+																<editors:CommitTextBox.InnerRightContent>
+																	<TextBlock Text="}"
+																		Classes="dim"
+																		FontSize="11"
+																		Margin="0,0,6,0"
+																		VerticalAlignment="Center" />
+																</editors:CommitTextBox.InnerRightContent>
+															</editors:CommitTextBox>
+														</Panel>
+
+														<ToggleButton Grid.Column="2"
+															Classes="rowButton"
+															Content="{}{ }"
+															IsVisible="{Binding CanBind}"
+															IsChecked="{Binding IsBinding, Mode=OneWay}"
+															Command="{Binding ToggleBindingCommand}"
+															ToolTip.Tip="Bind this property to the view model. Click again to remove the binding." />
+														<Button Grid.Column="3"
+															Classes="rowButton"
+															Content="✕"
+															IsVisible="{Binding IsSet}"
+															Command="{Binding ResetCommand}"
+															ToolTip.Tip="Remove this attribute. The property goes back to its default value." />
+													</Grid>
+												</DataTemplate>
+											</ItemsControl.ItemTemplate>
+										</ItemsControl>
+									</StackPanel>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+						<Border BorderBrush="{DynamicResource PanelBorderBrush}"
+							BorderThickness="0,1,0,0" Padding="10,8,8,12">
+							<StackPanel Spacing="4">
+								<TextBlock Classes="dim" FontSize="11"
+									Text="Add any other attribute" />
+								<Grid ColumnDefinitions="38*,62*,Auto" ColumnSpacing="4">
+									<TextBox Classes="prop" Text="{Binding NewAttributeName}"
+										PlaceholderText="name" />
+									<TextBox Grid.Column="1" Classes="prop"
+										Text="{Binding NewAttributeValue}" PlaceholderText="value" />
+									<Button Grid.Column="2" Classes="tool" Content="Add"
+										Command="{Binding AddAttributeCommand}" />
+								</Grid>
+							</StackPanel>
+						</Border>
+					</StackPanel>
+				</ScrollViewer>
+			</DockPanel>
+		</Panel>
+	</DockPanel>
+</UserControl>

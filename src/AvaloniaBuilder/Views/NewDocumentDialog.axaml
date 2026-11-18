@@ -1,0 +1,47 @@
+<Window xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:meta="using:AvaloniaBuilder.Metadata"
+	x:Class="AvaloniaBuilder.Views.NewDocumentDialog"
+	Title="New document"
+	Width="620"
+	Height="520"
+	CanResize="False"
+	ShowInTaskbar="False"
+	WindowStartupLocation="CenterOwner">
+
+	<DockPanel Margin="18">
+		<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right"
+			Spacing="8" Margin="0,16,0,0">
+			<Button x:Name="CreateButton" Classes="accent" Content="Create" IsDefault="True"
+				MinWidth="86" HorizontalContentAlignment="Center" Click="OnCreate" />
+			<Button Content="Cancel" IsCancel="True" MinWidth="86"
+				HorizontalContentAlignment="Center" Click="OnCancel" />
+		</StackPanel>
+
+		<Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto"
+			ColumnSpacing="12" RowSpacing="8" Margin="0,14,0,0">
+			<TextBlock Text="Project namespace" VerticalAlignment="Center" />
+			<TextBox x:Name="NamespaceBox" Grid.Column="1" PlaceholderText="MyApp"
+				TextChanged="OnNamesChanged" />
+			<TextBlock Grid.Row="1" Text="View name" VerticalAlignment="Center" />
+			<TextBox x:Name="ViewNameBox" Grid.Row="1" Grid.Column="1" PlaceholderText="MainWindow"
+				TextChanged="OnNamesChanged" />
+			<TextBlock x:Name="SummaryText" Grid.Row="2" Grid.Column="1" Classes="dim" FontSize="12"
+				TextWrapping="Wrap" />
+		</Grid>
+
+		<TextBlock DockPanel.Dock="Top" Text="Start with" FontWeight="SemiBold" Margin="0,0,0,8" />
+		<ListBox x:Name="TemplateList" SelectionChanged="OnTemplateChanged"
+			DoubleTapped="OnTemplateDoubleTapped">
+			<ListBox.ItemTemplate>
+				<DataTemplate x:DataType="meta:DocumentTemplate">
+					<StackPanel Margin="2,4" Spacing="2">
+						<TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+						<TextBlock Classes="dim" Text="{Binding Description}" FontSize="12"
+							TextWrapping="Wrap" />
+					</StackPanel>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</DockPanel>
+</Window>

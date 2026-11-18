@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:vm="using:AvaloniaBuilder.ViewModels"
+	x:Class="AvaloniaBuilder.Views.OutlineView"
+	x:DataType="vm:OutlineViewModel"
+	Background="{DynamicResource PanelBrush}">
+
+	<DockPanel>
+		<TextBlock DockPanel.Dock="Top" Classes="panelHeader" Text="OUTLINE" />
+
+		<Panel>
+			<ListBox x:Name="List"
+				Classes="outline"
+				ItemsSource="{Binding Rows}"
+				SelectedItem="{Binding SelectedRow}">
+				<ListBox.ItemTemplate>
+					<DataTemplate x:DataType="vm:OutlineRow">
+						<Grid ColumnDefinitions="Auto,Auto,*,Auto" Margin="{Binding Indent}"
+							Background="Transparent">
+							<Button Classes="arrow"
+								Content="{Binding Arrow}"
+								Command="{Binding $parent[ListBox].((vm:OutlineViewModel)DataContext).ToggleCommand}"
+								CommandParameter="{Binding}" />
+							<TextBlock Grid.Column="1"
+								Text="{Binding Title}"
+								Opacity="{Binding TitleOpacity}"
+								VerticalAlignment="Center" />
+							<TextBlock Grid.Column="2"
+								Classes="dim"
+								Text="{Binding Detail}"
+								Margin="8,0,0,0"
+								VerticalAlignment="Center"
+								TextTrimming="CharacterEllipsis" />
+							<TextBlock Grid.Column="3"
+								Text="!"
+								FontWeight="Bold"
+								Margin="6,0,2,0"
+								VerticalAlignment="Center"
+								Foreground="{DynamicResource ErrorBrush}"
+								IsVisible="{Binding HasProblem}"
+								ToolTip.Tip="{Binding Problem}" />
+						</Grid>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+
+			<Border x:Name="DropLine"
+				IsVisible="False"
+				IsHitTestVisible="False"
+				Height="2"
+				VerticalAlignment="Top"
+				Background="{DynamicResource AccentBrush}" />
+			<Border x:Name="DropBox"
+				IsVisible="False"
+				IsHitTestVisible="False"
+				VerticalAlignment="Top"
+				BorderThickness="2"
+				CornerRadius="3"
+				BorderBrush="{DynamicResource AccentBrush}" />
+		</Panel>
+	</DockPanel>
+</UserControl>

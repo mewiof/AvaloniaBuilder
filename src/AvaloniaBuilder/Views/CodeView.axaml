@@ -1,0 +1,132 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:vm="using:AvaloniaBuilder.ViewModels"
+	xmlns:edit="using:AvaloniaEdit"
+	x:Class="AvaloniaBuilder.Views.CodeView"
+	x:DataType="vm:MainViewModel"
+	Background="{DynamicResource PanelBrush}">
+
+	<TabControl x:Name="Tabs" Padding="0">
+
+		<TabItem Header="XAML" FontSize="13">
+			<DockPanel>
+				<Border DockPanel.Dock="Top" Padding="8,4"
+					Background="{DynamicResource HeaderBrush}">
+					<DockPanel>
+						<Button DockPanel.Dock="Right" Classes="tool" Content="Copy"
+							Command="{Binding CopyCodeCommand}" CommandParameter="xaml" />
+						<TextBlock Classes="dim"
+							FontSize="11"
+							VerticalAlignment="Center"
+							TextTrimming="CharacterEllipsis"
+							Text="The .axaml file. You can type here too: the design follows your text." />
+					</DockPanel>
+				</Border>
+				<Border DockPanel.Dock="Bottom"
+					Padding="8,4"
+					Background="{DynamicResource ErrorBackgroundBrush}"
+					IsVisible="{Binding HasXamlError}">
+					<TextBlock Classes="error" FontSize="12" Text="{Binding XamlError}" />
+				</Border>
+				<edit:TextEditor x:Name="XamlEditor"
+					ShowLineNumbers="True"
+					FontFamily="{StaticResource CodeFont}"
+					FontSize="13"
+					Background="{DynamicResource EditorBrush}"
+					HorizontalScrollBarVisibility="Auto"
+					VerticalScrollBarVisibility="Auto" />
+			</DockPanel>
+		</TabItem>
+
+		<TabItem Header="Code-behind" FontSize="13">
+			<DockPanel>
+				<Border DockPanel.Dock="Top" Padding="8,4"
+					Background="{DynamicResource HeaderBrush}">
+					<DockPanel>
+						<Button DockPanel.Dock="Right" Classes="tool" Content="Copy"
+							Command="{Binding CopyCodeCommand}" CommandParameter="codebehind" />
+						<TextBlock Classes="dim"
+							FontSize="11"
+							VerticalAlignment="Center"
+							TextTrimming="CharacterEllipsis"
+							Text="The .axaml.cs file. It gets one method for each event that you set in the property panel." />
+					</DockPanel>
+				</Border>
+				<edit:TextEditor x:Name="CodeBehindEditor"
+					IsReadOnly="True"
+					ShowLineNumbers="True"
+					FontFamily="{StaticResource CodeFont}"
+					FontSize="13"
+					Background="{DynamicResource EditorBrush}"
+					HorizontalScrollBarVisibility="Auto"
+					VerticalScrollBarVisibility="Auto" />
+			</DockPanel>
+		</TabItem>
+
+		<TabItem Header="View model" FontSize="13">
+			<DockPanel>
+				<Border DockPanel.Dock="Top" Padding="8,4"
+					Background="{DynamicResource HeaderBrush}">
+					<DockPanel>
+						<Button DockPanel.Dock="Right" Classes="tool" Content="Copy"
+							Command="{Binding CopyCodeCommand}" CommandParameter="viewmodel" />
+						<StackPanel Orientation="Horizontal" Spacing="14">
+							<TextBlock Classes="dim"
+								FontSize="11"
+								VerticalAlignment="Center"
+								Text="One property or command for each binding." />
+							<CheckBox Content="partial properties"
+								FontSize="12"
+								MinHeight="22"
+								IsChecked="{Binding UsePartialProperties}"
+								ToolTip.Tip="On: [ObservableProperty] public partial double Speed { get; set; }  Off: [ObservableProperty] private double _speed;" />
+							<CheckBox Content="ViewModelBase"
+								FontSize="12"
+								MinHeight="22"
+								IsChecked="{Binding UseViewModelBase}"
+								ToolTip.Tip="On: the class derives from ViewModelBase (like the Avalonia project template). Off: from ObservableObject." />
+						</StackPanel>
+					</DockPanel>
+				</Border>
+				<edit:TextEditor x:Name="ViewModelEditor"
+					IsReadOnly="True"
+					ShowLineNumbers="True"
+					FontFamily="{StaticResource CodeFont}"
+					FontSize="13"
+					Background="{DynamicResource EditorBrush}"
+					HorizontalScrollBarVisibility="Auto"
+					VerticalScrollBarVisibility="Auto" />
+			</DockPanel>
+		</TabItem>
+
+		<TabItem FontSize="13">
+			<TabItem.Header>
+				<TextBlock Text="{Binding ProblemSummary}" />
+			</TabItem.Header>
+			<Panel Background="{DynamicResource EditorBrush}">
+				<TextBlock Classes="dim"
+					Margin="12"
+					Text="No problems. Mistakes in the XAML appear here, with the element that has them."
+					IsVisible="{Binding !Problems.Count}" />
+				<ListBox x:Name="ProblemList"
+					Background="Transparent"
+					ItemsSource="{Binding Problems}"
+					SelectionChanged="OnProblemSelected"
+					IsVisible="{Binding Problems.Count}">
+					<ListBox.ItemTemplate>
+						<DataTemplate x:DataType="vm:ProblemViewModel">
+							<Grid ColumnDefinitions="18,*,Auto" ColumnSpacing="8">
+								<TextBlock Text="{Binding Icon}" FontWeight="Bold"
+									Foreground="{DynamicResource ErrorBrush}" />
+								<TextBlock Grid.Column="1" Text="{Binding Message}"
+									TextWrapping="Wrap" FontSize="12" />
+								<TextBlock Grid.Column="2" Classes="dim" Text="{Binding Where}"
+									FontSize="12" />
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</Panel>
+		</TabItem>
+	</TabControl>
+</UserControl>

@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Class="AvaloniaBuilder.Views.MessageDialog"
+	SizeToContent="WidthAndHeight"
+	MinWidth="360"
+	MaxWidth="680"
+	CanResize="False"
+	ShowInTaskbar="False"
+	WindowStartupLocation="CenterOwner">
+
+	<DockPanel Margin="20">
+		<StackPanel x:Name="ButtonRow"
+			DockPanel.Dock="Bottom"
+			Orientation="Horizontal"
+			HorizontalAlignment="Right"
+			Spacing="8"
+			Margin="0,18,0,0" />
+		<ScrollViewer MaxHeight="440" HorizontalScrollBarVisibility="Disabled">
+			<SelectableTextBlock x:Name="MessageText" TextWrapping="Wrap" MaxWidth="600"
+				LineHeight="20" />
+		</ScrollViewer>
+	</DockPanel>
+</Window>

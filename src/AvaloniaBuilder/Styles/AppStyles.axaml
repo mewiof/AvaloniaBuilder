@@ -1,0 +1,144 @@
+<Styles xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<Style Selector="TextBlock.panelHeader">
+		<Setter Property="FontSize" Value="11" />
+		<Setter Property="FontWeight" Value="SemiBold" />
+		<Setter Property="LetterSpacing" Value="0.6" />
+		<Setter Property="Foreground" Value="{DynamicResource SubtleTextBrush}" />
+		<Setter Property="Margin" Value="10,8,10,6" />
+	</Style>
+
+	<Style Selector="TextBlock.dim">
+		<Setter Property="Foreground" Value="{DynamicResource SubtleTextBrush}" />
+	</Style>
+
+	<Style Selector="TextBlock.error">
+		<Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+		<Setter Property="FontSize" Value="11" />
+		<Setter Property="TextWrapping" Value="Wrap" />
+	</Style>
+
+	<Style Selector="GridSplitter">
+		<Setter Property="Background" Value="{DynamicResource PanelBorderBrush}" />
+		<Setter Property="MinWidth" Value="1" />
+		<Setter Property="MinHeight" Value="1" />
+	</Style>
+
+	<Style Selector="ToggleButton.group">
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+		<Setter Property="FontSize" Value="12" />
+		<Setter Property="FontWeight" Value="SemiBold" />
+		<Setter Property="Cursor" Value="Hand" />
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border Background="{DynamicResource HeaderBrush}"
+					BorderBrush="{DynamicResource PanelBorderBrush}"
+					BorderThickness="0,1,0,0"
+					Padding="8,5">
+					<StackPanel Orientation="Horizontal" Spacing="6">
+						<TextBlock x:Name="PART_Arrow"
+							Text="▸"
+							Width="10"
+							FontSize="10"
+							VerticalAlignment="Center"
+							Foreground="{DynamicResource SubtleTextBrush}" />
+						<ContentPresenter Content="{TemplateBinding Content}"
+							VerticalAlignment="Center" />
+					</StackPanel>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+	</Style>
+	<Style Selector="ToggleButton.group:checked /template/ TextBlock#PART_Arrow">
+		<Setter Property="Text" Value="▾" />
+	</Style>
+
+	<Style Selector="Border.tool">
+		<Setter Property="Padding" Value="24,4,8,4" />
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="Cursor" Value="Hand" />
+	</Style>
+	<Style Selector="Border.tool:pointerover">
+		<Setter Property="Background" Value="{DynamicResource RowHoverBrush}" />
+	</Style>
+	<Style Selector="Border.tool > TextBlock">
+		<Setter Property="FontSize" Value="12" />
+		<Setter Property="TextTrimming" Value="CharacterEllipsis" />
+	</Style>
+
+	<Style Selector="ListBox.outline">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="Padding" Value="0" />
+	</Style>
+	<Style Selector="ListBox.outline ListBoxItem">
+		<Setter Property="Padding" Value="6,1,6,1" />
+		<Setter Property="MinHeight" Value="22" />
+		<Setter Property="FontSize" Value="12" />
+	</Style>
+
+	<Style Selector="Button.arrow">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="BorderThickness" Value="0" />
+		<Setter Property="Padding" Value="0" />
+		<Setter Property="Width" Value="16" />
+		<Setter Property="MinHeight" Value="16" />
+		<Setter Property="FontSize" Value="10" />
+		<Setter Property="Focusable" Value="False" />
+		<Setter Property="HorizontalContentAlignment" Value="Center" />
+		<Setter Property="Foreground" Value="{DynamicResource SubtleTextBrush}" />
+	</Style>
+
+	<Style Selector="TextBox.prop">
+		<Setter Property="FontSize" Value="12" />
+		<Setter Property="MinHeight" Value="24" />
+		<Setter Property="Padding" Value="6,2,6,2" />
+		<Setter Property="VerticalContentAlignment" Value="Center" />
+	</Style>
+	<Style Selector="TextBox.prop.invalid">
+		<Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+		<Setter Property="Background" Value="{DynamicResource ErrorBackgroundBrush}" />
+	</Style>
+
+	<Style Selector="ComboBox.prop">
+		<Setter Property="FontSize" Value="12" />
+		<Setter Property="MinHeight" Value="24" />
+		<Setter Property="Padding" Value="6,1,0,1" />
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+	</Style>
+
+	<Style Selector="Button.rowButton, ToggleButton.rowButton">
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="BorderThickness" Value="0" />
+		<Setter Property="Padding" Value="0" />
+		<Setter Property="Width" Value="22" />
+		<Setter Property="Height" Value="24" />
+		<Setter Property="FontSize" Value="11" />
+		<Setter Property="Focusable" Value="False" />
+		<Setter Property="HorizontalContentAlignment" Value="Center" />
+		<Setter Property="VerticalContentAlignment" Value="Center" />
+		<Setter Property="Foreground" Value="{DynamicResource SubtleTextBrush}" />
+	</Style>
+
+	<Style Selector="Button.swatch">
+		<Setter Property="Width" Value="24" />
+		<Setter Property="Height" Value="24" />
+		<Setter Property="Margin" Value="3,0,0,0" />
+		<Setter Property="Padding" Value="0" />
+		<Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="CornerRadius" Value="3" />
+	</Style>
+
+	<Style Selector="Button.tool, ToggleButton.tool">
+		<Setter Property="FontSize" Value="12" />
+		<Setter Property="Padding" Value="10,4" />
+		<Setter Property="MinHeight" Value="26" />
+	</Style>
+
+	<Style Selector="Border.toolSeparator">
+		<Setter Property="Width" Value="1" />
+		<Setter Property="Margin" Value="4,3" />
+		<Setter Property="Background" Value="{DynamicResource PanelBorderBrush}" />
+	</Style>
+</Styles>

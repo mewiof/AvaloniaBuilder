@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Class="AvaloniaBuilder.Views.ExportDialog"
+	Title="Export code"
+	Width="640"
+	SizeToContent="Height"
+	CanResize="False"
+	ShowInTaskbar="False"
+	WindowStartupLocation="CenterOwner">
+
+	<StackPanel Margin="18" Spacing="10">
+		<TextBlock Text="What do you want?" FontWeight="SemiBold" />
+		<RadioButton x:Name="ViewOnlyOption" GroupName="mode" IsChecked="True"
+			IsCheckedChanged="OnOptionChanged">
+			<StackPanel Spacing="2">
+				<TextBlock Text="Add the view to a project that I have" />
+				<TextBlock Classes="dim" FontSize="12"
+					Text="Writes the view, its code-behind and the view model. Pick the folder with your .csproj file." />
+			</StackPanel>
+		</RadioButton>
+		<RadioButton x:Name="NewProjectOption" GroupName="mode" IsCheckedChanged="OnOptionChanged">
+			<StackPanel Spacing="2">
+				<TextBlock Text="Make a new project that runs" />
+				<TextBlock Classes="dim" FontSize="12"
+					Text="Also writes the project file, Program.cs and App.axaml. Pick an empty folder. Then type: dotnet run" />
+			</StackPanel>
+		</RadioButton>
+
+		<TextBlock Text="Folder" FontWeight="SemiBold" Margin="0,6,0,0" />
+		<Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+			<TextBox x:Name="FolderBox" PlaceholderText="C:\Projects\MyApp"
+				TextChanged="OnFolderChanged" />
+			<Button Grid.Column="1" Content="Browse..." Click="OnBrowse" />
+		</Grid>
+
+		<TextBlock Text="Files" FontWeight="SemiBold" Margin="0,6,0,0" />
+		<Border BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"
+			CornerRadius="4" Height="170">
+			<ScrollViewer>
+				<ItemsControl x:Name="FileList" Margin="8,6">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate x:DataType="x:String">
+							<TextBlock Text="{Binding}" FontFamily="{StaticResource CodeFont}"
+								FontSize="12" Margin="0,1" />
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
+		</Border>
+		<CheckBox x:Name="OverwriteBox" Content="Replace files that are there already" />
+		<TextBlock x:Name="HintText" Classes="dim" FontSize="12" TextWrapping="Wrap" />
+
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8"
+			Margin="0,6,0,0">
+			<Button x:Name="ExportButton" Classes="accent" Content="Export" IsDefault="True"
+				MinWidth="86" HorizontalContentAlignment="Center" Click="OnExport" />
+			<Button Content="Cancel" IsCancel="True" MinWidth="86"
+				HorizontalContentAlignment="Center" Click="OnCancel" />
+		</StackPanel>
+	</StackPanel>
+</Window>

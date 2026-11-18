@@ -1,0 +1,45 @@
+<Application xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Class="AvaloniaBuilder.App"
+	RequestedThemeVariant="Default">
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<SolidColorBrush x:Key="WorkspaceBrush" Color="#E4E7EB" />
+					<SolidColorBrush x:Key="PanelBrush" Color="#F8F9FB" />
+					<SolidColorBrush x:Key="PanelBorderBrush" Color="#D3D8DE" />
+					<SolidColorBrush x:Key="HeaderBrush" Color="#ECEFF3" />
+					<SolidColorBrush x:Key="SubtleTextBrush" Color="#5C6470" />
+					<SolidColorBrush x:Key="RowHoverBrush" Color="#14000000" />
+					<SolidColorBrush x:Key="ErrorBrush" Color="#C62828" />
+					<SolidColorBrush x:Key="ErrorBackgroundBrush" Color="#FDECEA" />
+					<SolidColorBrush x:Key="EditorBrush" Color="#FFFFFF" />
+					<SolidColorBrush x:Key="LineHighlightBrush" Color="#201E88E5" />
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Dark">
+					<SolidColorBrush x:Key="WorkspaceBrush" Color="#151618" />
+					<SolidColorBrush x:Key="PanelBrush" Color="#1F2124" />
+					<SolidColorBrush x:Key="PanelBorderBrush" Color="#35383D" />
+					<SolidColorBrush x:Key="HeaderBrush" Color="#282B2F" />
+					<SolidColorBrush x:Key="SubtleTextBrush" Color="#A3A9B1" />
+					<SolidColorBrush x:Key="RowHoverBrush" Color="#18FFFFFF" />
+					<SolidColorBrush x:Key="ErrorBrush" Color="#FF6B60" />
+					<SolidColorBrush x:Key="ErrorBackgroundBrush" Color="#3A1F1D" />
+					<SolidColorBrush x:Key="EditorBrush" Color="#1B1C1E" />
+					<SolidColorBrush x:Key="LineHighlightBrush" Color="#301E88E5" />
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+			<SolidColorBrush x:Key="AccentBrush" Color="#1E88E5" />
+			<FontFamily x:Key="CodeFont">Cascadia Mono,Cascadia Code,Consolas,Menlo,DejaVu Sans
+				Mono,monospace</FontFamily>
+		</ResourceDictionary>
+	</Application.Resources>
+
+	<Application.Styles>
+		<FluentTheme DensityStyle="Compact" />
+		<StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+		<StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+		<StyleInclude Source="/Styles/AppStyles.axaml" />
+	</Application.Styles>
+</Application>

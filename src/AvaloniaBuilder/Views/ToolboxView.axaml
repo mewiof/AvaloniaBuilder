@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:vm="using:AvaloniaBuilder.ViewModels"
+	xmlns:meta="using:AvaloniaBuilder.Metadata"
+	x:Class="AvaloniaBuilder.Views.ToolboxView"
+	x:DataType="vm:ToolboxViewModel"
+	Background="{DynamicResource PanelBrush}">
+
+	<DockPanel>
+		<TextBlock DockPanel.Dock="Top" Classes="panelHeader" Text="TOOLBOX" />
+		<TextBox DockPanel.Dock="Top"
+			Classes="prop"
+			Margin="8,0,8,6"
+			Text="{Binding Filter}"
+			PlaceholderText="Search" />
+		<TextBlock DockPanel.Dock="Bottom"
+			Classes="dim"
+			FontSize="11"
+			Margin="10,6"
+			TextWrapping="Wrap"
+			Text="Drag an entry onto the design. Or double-click it." />
+
+		<ScrollViewer>
+			<ItemsControl ItemsSource="{Binding Groups}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate x:DataType="vm:ToolboxGroupViewModel">
+						<StackPanel>
+							<ToggleButton Classes="group" IsChecked="{Binding IsExpanded}"
+								Content="{Binding Name}" />
+							<ItemsControl ItemsSource="{Binding Items}"
+								IsVisible="{Binding IsExpanded}" Margin="0,2,0,4">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate x:DataType="meta:ToolboxItem">
+										<Border Classes="tool" ToolTip.Tip="{Binding Description}">
+											<TextBlock Text="{Binding Name}" />
+										</Border>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</StackPanel>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+	</DockPanel>
+</UserControl>

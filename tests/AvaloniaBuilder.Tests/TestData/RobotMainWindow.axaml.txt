@@ -1,0 +1,245 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:RobotPanel.ViewModels"
+        xmlns:ctl="using:RobotPanel.Controls"
+        xmlns:conv="using:RobotPanel.Converters"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="760"
+        x:Class="RobotPanel.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Robot Panel"
+        Width="1200" Height="760" MinWidth="900" MinHeight="560"
+        WindowStartupLocation="CenterScreen">
+
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <Window.Resources>
+        <conv:DriveStateToBrushConverter x:Key="DriveStateBrush" />
+    </Window.Resources>
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Escape" Command="{Binding StopCommand}" />
+        <KeyBinding Gesture="Ctrl+H" Command="{Binding HomeCommand}" />
+        <KeyBinding Gesture="Ctrl+E" Command="{Binding ToggleDrivesCommand}" />
+    </Window.KeyBindings>
+
+    <Grid ColumnDefinitions="380,*">
+
+        <DockPanel Grid.Column="0" Margin="16">
+
+            <StackPanel DockPanel.Dock="Top" Spacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="DrivesButton"
+                            Classes.accent="{Binding DrivesEnabled}"
+                            Content="{Binding DrivesButtonText}"
+                            Command="{Binding ToggleDrivesCommand}"
+                            ToolTip.Tip="Enable / disable the drives (Ctrl+E)" />
+                    <Button x:Name="HomeButton"
+                            Content="Home"
+                            Command="{Binding HomeCommand}"
+                            ToolTip.Tip="Move every joint to 0° (Ctrl+H)" />
+                    <Button x:Name="StopButton"
+                            Classes="danger"
+                            Content="STOP"
+                            Command="{Binding StopCommand}"
+                            ToolTip.Tip="Halt motion and switch the drives off (Esc)" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border Classes="pill"
+                            Background="{Binding Drives, Converter={StaticResource DriveStateBrush}}">
+                        <TextBlock Text="{Binding Drives}" />
+                    </Border>
+                    <Border Classes="pill" Background="Firebrick" IsVisible="{Binding IsStale}">
+                        <TextBlock Text="NO TELEMETRY" />
+                    </Border>
+                </StackPanel>
+
+                <ItemsControl ItemsSource="{Binding Joints}"
+                              IsEnabled="{Binding CanMove}"
+                              Opacity="{Binding IsStale, Converter={x:Static conv:RobotConverters.StaleToOpacity}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:JointViewModel">
+                            <StackPanel Spacing="2" Margin="0,0,0,10">
+                                <TextBlock Classes="h2" Text="{Binding Name}" />
+                                <Slider Minimum="{Binding Minimum}"
+                                        Maximum="{Binding Maximum}"
+                                        Value="{Binding Target}" />
+                                <Grid Classes="readout" ColumnDefinitions="90,Auto" RowDefinitions="Auto,Auto,Auto">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="target" />
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Target, Converter={x:Static conv:RobotConverters.Degrees}}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="measured" />
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Measured, Converter={x:Static conv:RobotConverters.Degrees}}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="error" />
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Error, Converter={x:Static conv:RobotConverters.Degrees}}" />
+                                </Grid>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Expander Header="Simulation" IsVisible="{Binding HasSimulation}" HorizontalAlignment="Stretch">
+                    <CheckBox Content="Freeze telemetry (simulate comms loss)"
+                              IsChecked="{Binding FreezeTelemetry}" />
+                </Expander>
+
+                <TextBlock Classes="h2" Text="Event log" />
+            </StackPanel>
+
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                <ToggleSwitch x:Name="ThemeSwitch" OnContent="Dark" OffContent="Light"
+                              IsCheckedChanged="OnThemeSwitchChanged" />
+                <TextBlock Classes="dim" VerticalAlignment="Center" FontSize="12"
+                           Text="Esc stop · Ctrl+H home · Ctrl+E drives" />
+            </StackPanel>
+
+            <ListBox Classes="log" ItemsSource="{Binding Log}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:LogEntry">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Classes="mono dim" Text="{Binding TimeText}" Margin="0,0,8,0" />
+                            <TextBlock Grid.Column="1" Classes.warning="{Binding IsWarning}"
+                                       Text="{Binding Message}" TextWrapping="Wrap" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <Grid Grid.Column="1" RowDefinitions="*,Auto,280">
+
+            <Panel Grid.Row="0">
+                <ctl:ArmView x:Name="Arm"
+                             Background="{DynamicResource CanvasBrush}"
+                             ArmBrush="{DynamicResource ArmBrush}"
+                             TargetBrush="{DynamicResource TargetBrush}"
+                             JointBrush="{DynamicResource JointBrush}"
+                             LimitBrush="{DynamicResource LimitBrush}"
+                             LimitHitBrush="{DynamicResource DangerBrush}"
+                             UpperArmLength="{Binding Shoulder.LinkLength}"
+                             ForearmLength="{Binding Elbow.LinkLength}"
+                             ShoulderAngle="{Binding Shoulder.Measured}"
+                             ElbowAngle="{Binding Elbow.Measured}"
+                             TargetShoulderAngle="{Binding Shoulder.Target}"
+                             TargetElbowAngle="{Binding Elbow.Target}"
+                             ShoulderMinimum="{Binding Shoulder.Minimum}"
+                             ShoulderMaximum="{Binding Shoulder.Maximum}"
+                             ElbowMinimum="{Binding Elbow.Minimum}"
+                             ElbowMaximum="{Binding Elbow.Maximum}"
+                             ShoulderLabel="{Binding Shoulder.Name}"
+                             ElbowLabel="{Binding Elbow.Name}"
+                             IsDragEnabled="{Binding CanMove}"
+                             JointContextRequested="OnJointContextRequested">
+                    <FlyoutBase.AttachedFlyout>
+                        <Flyout>
+                            <StackPanel x:Name="JointEditor" x:DataType="vm:JointViewModel" Spacing="10" Width="290">
+                                <StackPanel.Styles>
+                                    <Style Selector="NumericUpDown">
+                                        <Setter Property="ClipValueToMinMax" Value="True" />
+                                        <Setter Property="FormatString" Value="0.#" />
+                                    </Style>
+                                </StackPanel.Styles>
+                                <TextBlock Classes="h2" Text="Joint settings" />
+                                <TextBox x:Name="JointNameBox" Text="{Binding Name}" PlaceholderText="Name" />
+                                <Grid ColumnDefinitions="*,130,34" RowDefinitions="Auto,Auto,Auto,Auto"
+                                      RowSpacing="6" ColumnSpacing="6">
+                                    <TextBlock Grid.Row="0" Text="Minimum" VerticalAlignment="Center" />
+                                    <NumericUpDown x:Name="MinimumBox" Grid.Row="0" Grid.Column="1"
+                                                   Minimum="{Binding Hardware.MinDeg}" Maximum="{Binding Maximum}"
+                                                   Increment="5" Value="{Binding Minimum}" />
+                                    <TextBlock Grid.Row="0" Grid.Column="2" Classes="dim" Text="°" VerticalAlignment="Center" />
+
+                                    <TextBlock Grid.Row="1" Text="Maximum" VerticalAlignment="Center" />
+                                    <NumericUpDown x:Name="MaximumBox" Grid.Row="1" Grid.Column="1"
+                                                   Minimum="{Binding Minimum}" Maximum="{Binding Hardware.MaxDeg}"
+                                                   Increment="5" Value="{Binding Maximum}" />
+                                    <TextBlock Grid.Row="1" Grid.Column="2" Classes="dim" Text="°" VerticalAlignment="Center" />
+
+                                    <TextBlock Grid.Row="2" Text="Max speed" VerticalAlignment="Center" />
+                                    <NumericUpDown x:Name="SpeedBox" Grid.Row="2" Grid.Column="1"
+                                                   Minimum="1" Maximum="{Binding Hardware.MaxSpeed}"
+                                                   Increment="10" Value="{Binding MaxSpeed}" />
+                                    <TextBlock Grid.Row="2" Grid.Column="2" Classes="dim" Text="°/s" VerticalAlignment="Center" />
+
+                                    <TextBlock Grid.Row="3" Text="Max acceleration" VerticalAlignment="Center" />
+                                    <NumericUpDown x:Name="AccelerationBox" Grid.Row="3" Grid.Column="1"
+                                                   Minimum="1" Maximum="{Binding Hardware.MaxAcceleration}"
+                                                   Increment="30" Value="{Binding MaxAcceleration}" />
+                                    <TextBlock Grid.Row="3" Grid.Column="2" Classes="dim" Text="°/s²" VerticalAlignment="Center" />
+                                </Grid>
+                                <TextBlock Classes="dim" FontSize="12" TextWrapping="Wrap">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="Hardware: {0:0}° to {1:0}°, {2:0} °/s, {3:0} °/s²">
+                                            <Binding Path="Hardware.MinDeg" />
+                                            <Binding Path="Hardware.MaxDeg" />
+                                            <Binding Path="Hardware.MaxSpeed" />
+                                            <Binding Path="Hardware.MaxAcceleration" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <Button Content="Reset" Command="{Binding ResetCommand}" HorizontalAlignment="Right"
+                                        ToolTip.Tip="Back to the robot's name and the hardware limits" />
+                            </StackPanel>
+                        </Flyout>
+                    </FlyoutBase.AttachedFlyout>
+                </ctl:ArmView>
+                <TextBlock Classes="dim" FontSize="12" Margin="12"
+                           HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False"
+                           Text="Drag to move the target · Right-click a joint to edit it" />
+            </Panel>
+
+            <GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="4"
+                          Background="{DynamicResource GridLineBrush}" />
+
+            <Grid Grid.Row="2" ColumnDefinitions="*,*">
+
+                <DockPanel Grid.Column="0" Margin="8">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="0,0,0,6">
+                        <TextBlock Classes="h2" Text="Depth camera" VerticalAlignment="Center" />
+                        <TextBlock Classes="mono dim" VerticalAlignment="Center"
+                                   Text="{Binding DepthFps, StringFormat={}{0:F0} fps}" />
+                        <ComboBox ItemsSource="{x:Static ctl:DepthImageView.AllColorMaps}"
+                                  SelectedItem="{Binding #Depth.ColorMap}" />
+                    </StackPanel>
+                    <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto,*" Margin="0,6,0,0">
+                        <TextBlock Grid.Column="0" Classes="dim" Text="near" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <Slider Grid.Column="1" Minimum="200" Maximum="3000" Value="{Binding #Depth.NearMm}" />
+                        <TextBlock Grid.Column="2" Classes="dim" Text="far" VerticalAlignment="Center" Margin="12,0,6,0" />
+                        <Slider Grid.Column="3" Minimum="500" Maximum="5000" Value="{Binding #Depth.FarMm}" />
+                    </Grid>
+                    <Panel>
+                        <ctl:DepthImageView x:Name="Depth" Frame="{Binding DepthFrame}" />
+                        <TextBlock Classes="overlay" Margin="6"
+                                   HorizontalAlignment="Left" VerticalAlignment="Top"
+                                   IsVisible="{Binding #Depth.ProbeText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   Text="{Binding #Depth.ProbeText}" />
+                    </Panel>
+                </DockPanel>
+
+                <DockPanel Grid.Column="1" Margin="8">
+                    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,6" ItemSpacing="12">
+                        <TextBlock Classes="h2" Text="Joint angles (10 s)" />
+                        <TextBlock Foreground="SteelBlue" Text="— shoulder" />
+                        <TextBlock Foreground="DarkOrange" Text="— elbow" />
+                        <TextBlock Classes="dim" Text="dashed = target" />
+                    </WrapPanel>
+                    <ctl:TrendChart Buffer="{Binding Trend}"
+                                    Minimum="-150" Maximum="150" WindowSeconds="10"
+                                    Background="{DynamicResource CanvasBrush}"
+                                    GridBrush="{DynamicResource GridLineBrush}">
+                        <ctl:TrendChart.Series>
+                            <ctl:TrendSeries Index="0" Brush="SteelBlue" />
+                            <ctl:TrendSeries Index="1" Brush="SteelBlue" IsDashed="True" />
+                            <ctl:TrendSeries Index="2" Brush="DarkOrange" />
+                            <ctl:TrendSeries Index="3" Brush="DarkOrange" IsDashed="True" />
+                        </ctl:TrendChart.Series>
+                    </ctl:TrendChart>
+                </DockPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

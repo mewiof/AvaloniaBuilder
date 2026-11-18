@@ -1,0 +1,8 @@
+<Solution>
+	<Folder Name="/src/">
+		<Project Path="src/AvaloniaBuilder/AvaloniaBuilder.csproj" />
+	</Folder>
+	<Folder Name="/tests/">
+		<Project Path="tests/AvaloniaBuilder.Tests/AvaloniaBuilder.Tests.csproj" />
+	</Folder>
+</Solution>

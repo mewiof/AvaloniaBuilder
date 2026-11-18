@@ -1,0 +1,262 @@
+<Window xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:vm="using:AvaloniaBuilder.ViewModels"
+	xmlns:views="using:AvaloniaBuilder.Views"
+	xmlns:designer="using:AvaloniaBuilder.Designer"
+	x:Class="AvaloniaBuilder.Views.MainWindow"
+	x:DataType="vm:MainViewModel"
+	Icon="/Assets/avalonia-logo.ico"
+	Title="{Binding Title}"
+	Width="1400" Height="860"
+	MinWidth="1000" MinHeight="620"
+	WindowStartupLocation="CenterScreen">
+
+	<Window.KeyBindings>
+		<KeyBinding Gesture="Ctrl+N" Command="{Binding NewCommand}" />
+		<KeyBinding Gesture="Ctrl+O" Command="{Binding OpenCommand}" />
+		<KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+		<KeyBinding Gesture="Ctrl+Shift+S" Command="{Binding SaveAsCommand}" />
+		<KeyBinding Gesture="Ctrl+E" Command="{Binding ExportCommand}" />
+		<KeyBinding Gesture="F5" Command="{Binding ToggleRunModeCommand}" />
+		<KeyBinding Gesture="Ctrl+F5" Command="{Binding OpenPreviewWindowCommand}" />
+		<KeyBinding Gesture="Ctrl+D0" Command="{Binding ZoomResetCommand}" />
+		<KeyBinding Gesture="Ctrl+D9" Command="{Binding ZoomToFitCommand}" />
+		<KeyBinding Gesture="Ctrl+OemPlus" Command="{Binding ZoomInCommand}" />
+		<KeyBinding Gesture="Ctrl+OemMinus" Command="{Binding ZoomOutCommand}" />
+	</Window.KeyBindings>
+
+	<Window.Resources>
+		<ContextMenu x:Key="ElementMenu">
+			<MenuItem Header="Cut" InputGesture="Ctrl+X" Command="{Binding CutCommand}" />
+			<MenuItem Header="Copy" InputGesture="Ctrl+C" Command="{Binding CopyCommand}" />
+			<MenuItem Header="Paste" InputGesture="Ctrl+V" Command="{Binding PasteCommand}" />
+			<MenuItem Header="Duplicate" InputGesture="Ctrl+D" Command="{Binding DuplicateCommand}" />
+			<MenuItem Header="Delete" InputGesture="Delete" Command="{Binding DeleteCommand}" />
+			<Separator />
+			<MenuItem Header="Wrap in">
+				<MenuItem Header="Border" Command="{Binding WrapCommand}" CommandParameter="Border" />
+				<MenuItem Header="Grid" Command="{Binding WrapCommand}" CommandParameter="Grid" />
+				<MenuItem Header="StackPanel" Command="{Binding WrapCommand}"
+					CommandParameter="StackPanel" />
+				<MenuItem Header="DockPanel" Command="{Binding WrapCommand}"
+					CommandParameter="DockPanel" />
+				<MenuItem Header="ScrollViewer" Command="{Binding WrapCommand}"
+					CommandParameter="ScrollViewer" />
+				<MenuItem Header="Viewbox" Command="{Binding WrapCommand}"
+					CommandParameter="Viewbox" />
+				<MenuItem Header="Expander" Command="{Binding WrapCommand}"
+					CommandParameter="Expander" />
+				<MenuItem Header="GroupBox" Command="{Binding WrapCommand}"
+					CommandParameter="GroupBox" />
+			</MenuItem>
+			<MenuItem Header="Unwrap (keep what is inside)" Command="{Binding UnwrapCommand}" />
+			<Separator />
+			<MenuItem Header="Grid: add a row" Command="{Binding AddGridRowCommand}" />
+			<MenuItem Header="Grid: add a column" Command="{Binding AddGridColumnCommand}" />
+			<Separator />
+			<MenuItem Header="Move earlier" InputGesture="Alt+Up"
+				Command="{Binding MoveEarlierCommand}" />
+			<MenuItem Header="Move later" InputGesture="Alt+Down"
+				Command="{Binding MoveLaterCommand}" />
+			<MenuItem Header="Select parent" InputGesture="Escape"
+				Command="{Binding SelectParentCommand}" />
+		</ContextMenu>
+	</Window.Resources>
+
+	<DockPanel>
+
+		<Menu DockPanel.Dock="Top">
+			<MenuItem Header="_File">
+				<MenuItem Header="_New..." InputGesture="Ctrl+N" Command="{Binding NewCommand}" />
+				<MenuItem Header="_Open..." InputGesture="Ctrl+O" Command="{Binding OpenCommand}" />
+				<MenuItem x:Name="RecentMenu" Header="Open _recent" />
+				<Separator />
+				<MenuItem Header="_Save" InputGesture="Ctrl+S" Command="{Binding SaveCommand}" />
+				<MenuItem Header="Save _as..." InputGesture="Ctrl+Shift+S"
+					Command="{Binding SaveAsCommand}" />
+				<Separator />
+				<MenuItem Header="_Export code..." InputGesture="Ctrl+E"
+					Command="{Binding ExportCommand}" />
+				<Separator />
+				<MenuItem Header="E_xit" Click="OnExitClick" />
+			</MenuItem>
+			<MenuItem Header="_Edit">
+				<MenuItem Header="_Undo" InputGesture="Ctrl+Z" Command="{Binding UndoCommand}" />
+				<MenuItem Header="_Redo" InputGesture="Ctrl+Y" Command="{Binding RedoCommand}" />
+				<Separator />
+				<MenuItem Header="Cu_t" InputGesture="Ctrl+X" Command="{Binding CutCommand}" />
+				<MenuItem Header="_Copy" InputGesture="Ctrl+C" Command="{Binding CopyCommand}" />
+				<MenuItem Header="_Paste" InputGesture="Ctrl+V" Command="{Binding PasteCommand}" />
+				<MenuItem Header="_Duplicate" InputGesture="Ctrl+D"
+					Command="{Binding DuplicateCommand}" />
+				<MenuItem Header="De_lete" InputGesture="Delete" Command="{Binding DeleteCommand}" />
+				<Separator />
+				<MenuItem Header="_Wrap in">
+					<MenuItem Header="Border" Command="{Binding WrapCommand}"
+						CommandParameter="Border" />
+					<MenuItem Header="Grid" Command="{Binding WrapCommand}" CommandParameter="Grid" />
+					<MenuItem Header="StackPanel" Command="{Binding WrapCommand}"
+						CommandParameter="StackPanel" />
+					<MenuItem Header="DockPanel" Command="{Binding WrapCommand}"
+						CommandParameter="DockPanel" />
+					<MenuItem Header="ScrollViewer" Command="{Binding WrapCommand}"
+						CommandParameter="ScrollViewer" />
+					<MenuItem Header="Viewbox" Command="{Binding WrapCommand}"
+						CommandParameter="Viewbox" />
+					<MenuItem Header="Expander" Command="{Binding WrapCommand}"
+						CommandParameter="Expander" />
+					<MenuItem Header="GroupBox" Command="{Binding WrapCommand}"
+						CommandParameter="GroupBox" />
+				</MenuItem>
+				<MenuItem Header="U_nwrap (keep what is inside)" Command="{Binding UnwrapCommand}" />
+				<Separator />
+				<MenuItem Header="Grid: add a ro_w" Command="{Binding AddGridRowCommand}" />
+				<MenuItem Header="Grid: add a colu_mn" Command="{Binding AddGridColumnCommand}" />
+				<Separator />
+				<MenuItem Header="Move _earlier" InputGesture="Alt+Up"
+					Command="{Binding MoveEarlierCommand}" />
+				<MenuItem Header="Move l_ater" InputGesture="Alt+Down"
+					Command="{Binding MoveLaterCommand}" />
+				<MenuItem Header="Select _parent" InputGesture="Escape"
+					Command="{Binding SelectParentCommand}" />
+			</MenuItem>
+			<MenuItem Header="_View">
+				<MenuItem Header="_Run mode (try the controls)" InputGesture="F5"
+					Command="{Binding ToggleRunModeCommand}" />
+				<MenuItem Header="Preview in a real _window" InputGesture="Ctrl+F5"
+					Command="{Binding OpenPreviewWindowCommand}" />
+				<Separator />
+				<MenuItem Header="Zoom _in" InputGesture="Ctrl+OemPlus"
+					Command="{Binding ZoomInCommand}" />
+				<MenuItem Header="Zoom _out" InputGesture="Ctrl+OemMinus"
+					Command="{Binding ZoomOutCommand}" />
+				<MenuItem Header="_100 %" InputGesture="Ctrl+0" Command="{Binding ZoomResetCommand}" />
+				<MenuItem Header="_Fit to the window" InputGesture="Ctrl+9"
+					Command="{Binding ZoomToFitCommand}" />
+				<Separator />
+				<MenuItem Header="_Preview theme">
+					<MenuItem Header="Same as the designer"
+						Command="{Binding SetPreviewThemeCommand}" CommandParameter="Same" />
+					<MenuItem Header="Light" Command="{Binding SetPreviewThemeCommand}"
+						CommandParameter="Light" />
+					<MenuItem Header="Dark" Command="{Binding SetPreviewThemeCommand}"
+						CommandParameter="Dark" />
+				</MenuItem>
+				<MenuItem Header="_Designer theme">
+					<MenuItem Header="Same as the system" Command="{Binding SetAppThemeCommand}"
+						CommandParameter="Default" />
+					<MenuItem Header="Light" Command="{Binding SetAppThemeCommand}"
+						CommandParameter="Light" />
+					<MenuItem Header="Dark" Command="{Binding SetAppThemeCommand}"
+						CommandParameter="Dark" />
+				</MenuItem>
+			</MenuItem>
+			<MenuItem Header="_Help">
+				<MenuItem Header="_How to use the designer" InputGesture="F1" Click="OnHelpClick" />
+				<MenuItem Header="_About" Click="OnAboutClick" />
+			</MenuItem>
+		</Menu>
+
+		<Border DockPanel.Dock="Top"
+			Background="{DynamicResource HeaderBrush}"
+			BorderBrush="{DynamicResource PanelBorderBrush}"
+			BorderThickness="0,1,0,1"
+			Padding="8,5">
+			<DockPanel>
+				<StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
+					<Button Classes="tool" Content="−" Command="{Binding ZoomOutCommand}"
+						ToolTip.Tip="Zoom out (Ctrl+-)" />
+					<Button Classes="tool" Content="{Binding ZoomText}" MinWidth="58"
+						HorizontalContentAlignment="Center"
+						Command="{Binding ZoomResetCommand}" ToolTip.Tip="Back to 100 % (Ctrl+0)" />
+					<Button Classes="tool" Content="+" Command="{Binding ZoomInCommand}"
+						ToolTip.Tip="Zoom in (Ctrl++)" />
+					<Button Classes="tool" Content="Fit" Command="{Binding ZoomToFitCommand}"
+						ToolTip.Tip="Show the whole design (Ctrl+9)" />
+				</StackPanel>
+
+				<StackPanel Orientation="Horizontal" Spacing="4">
+					<Button Classes="tool" Content="New" Command="{Binding NewCommand}"
+						ToolTip.Tip="New document (Ctrl+N)" />
+					<Button Classes="tool" Content="Open" Command="{Binding OpenCommand}"
+						ToolTip.Tip="Open a .axaml file (Ctrl+O)" />
+					<Button Classes="tool" Content="Save" Command="{Binding SaveCommand}"
+						ToolTip.Tip="Save the .axaml file (Ctrl+S)" />
+					<Border Classes="toolSeparator" />
+					<Button Classes="tool" Content="Undo" Command="{Binding UndoCommand}"
+						ToolTip.Tip="Undo (Ctrl+Z)" />
+					<Button Classes="tool" Content="Redo" Command="{Binding RedoCommand}"
+						ToolTip.Tip="Redo (Ctrl+Y)" />
+					<Border Classes="toolSeparator" />
+					<ToggleButton Classes="tool"
+						Content="▶  Run"
+						IsChecked="{Binding IsRunMode}"
+						ToolTip.Tip="Run mode: the controls work like in the real app. Click again to design. (F5)" />
+					<Button Classes="tool" Content="Preview window"
+						Command="{Binding OpenPreviewWindowCommand}"
+						ToolTip.Tip="Show the design in a real window. You can resize it. (Ctrl+F5)" />
+					<Border Classes="toolSeparator" />
+					<TextBlock Classes="dim" Text="Preview theme" FontSize="12"
+						VerticalAlignment="Center" Margin="4,0,2,0" />
+					<ComboBox x:Name="PreviewThemeBox"
+						Classes="prop"
+						MinWidth="96"
+						SelectedItem="{Binding PreviewThemeName}"
+						ToolTip.Tip="The theme of the design: the same as the designer, or light, or dark." />
+					<Border Classes="toolSeparator" />
+					<Button Classes="tool accent" Content="Export code..."
+						Command="{Binding ExportCommand}"
+						ToolTip.Tip="Write the view, the code-behind and the view model as files (Ctrl+E)" />
+				</StackPanel>
+			</DockPanel>
+		</Border>
+
+		<Border DockPanel.Dock="Bottom"
+			Background="{DynamicResource HeaderBrush}"
+			BorderBrush="{DynamicResource PanelBorderBrush}"
+			BorderThickness="0,1,0,0"
+			Padding="10,3">
+			<DockPanel>
+				<Button DockPanel.Dock="Right"
+					Classes="tool"
+					Padding="8,1"
+					MinHeight="20"
+					Content="{Binding ProblemSummary}"
+					Classes.accent="{Binding HasProblems}"
+					Click="OnProblemsClick"
+					ToolTip.Tip="Show what the preview found" />
+				<TextBlock DockPanel.Dock="Right" Classes="dim" FontSize="12"
+					Text="{Binding Message}" VerticalAlignment="Center" Margin="16,0" />
+				<TextBlock FontSize="12" Text="{Binding SelectionPath}" VerticalAlignment="Center"
+					TextTrimming="CharacterEllipsis" />
+			</DockPanel>
+		</Border>
+
+		<Grid ColumnDefinitions="250,3,*,3,370">
+
+			<Grid Grid.Column="0" RowDefinitions="3*,3,2*">
+				<views:ToolboxView x:Name="ToolboxPanel" DataContext="{Binding Toolbox}" />
+				<GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+				<Border Grid.Row="2" ContextMenu="{StaticResource ElementMenu}">
+					<views:OutlineView x:Name="OutlinePanel" DataContext="{Binding Outline}" />
+				</Border>
+			</Grid>
+			<GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+
+			<Grid Grid.Column="2" RowDefinitions="3*,3,2*">
+				<designer:DesignSurface x:Name="Surface"
+					Document="{Binding Document}"
+					Zoom="{Binding Zoom}"
+					IsRunMode="{Binding IsRunMode}"
+					PreviewTheme="{Binding PreviewTheme}"
+					ContextMenu="{StaticResource ElementMenu}" />
+				<GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+				<views:CodeView x:Name="CodePanel" Grid.Row="2" />
+			</Grid>
+			<GridSplitter Grid.Column="3" ResizeDirection="Columns" />
+
+			<views:PropertiesView x:Name="PropertiesPanel" Grid.Column="4"
+				DataContext="{Binding Properties}" />
+		</Grid>
+	</DockPanel>
+</Window>
